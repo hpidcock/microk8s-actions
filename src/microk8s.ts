@@ -12,9 +12,11 @@ export class MicroK8s {
     command: string;
     launchConfigPath: string;
     sideloadImagePath: string;
+    dockerUser: string;
+    dockerPassword: string;
 
 
-    constructor(channel: string, addons: string[], devMode: string, launchConfigPath: string, sideloadImagePath: string) {
+    constructor(channel: string, addons: string[], devMode: string, launchConfigPath: string, sideloadImagePath: string, dockerUser: string, dockerPassword: string) {
         this.channel = channel;
         this.addons = new Array(addons.length);
         addons.forEach((addonString) => {
@@ -26,6 +28,8 @@ export class MicroK8s {
         this.command = "sudo snap install microk8s --channel=" + this.channel;
         this.launchConfigPath = launchConfigPath;
         this.sideloadImagePath = sideloadImagePath;
+        this.dockerUser = dockerUser;
+        this.dockerPassword = dockerPassword;
     }
 
     private generateMicrok8sInstallCommand() {
@@ -97,6 +101,7 @@ export class MicroK8s {
             this.sideloadImages();
             this.generateMicrok8sInstallCommand();
             util.executeCommand(false, this.command);
+            this.dockerLogin();
             this.prepareUserEnvironment();
             this.waitTillApiServerIsReady();
         } catch (error) {
@@ -108,6 +113,14 @@ export class MicroK8s {
         this.addons.forEach((addon) => {
             addon.enable();
         });
+    }
+
+    public dockerLogin() {
+        if (this.dockerUser !== "" && this.dockerPassword !== "") {
+            util.executeCommand(false, "sudo microk8s stop");
+            util.executeCommand(true, `printf '\n[plugins."io.containerd.grpc.v1.cri".registry.configs."registry-1.docker.io".auth]\nusername = "${this.dockerUser}"\npassword = "${this.dockerPassword}"\n' | sudo tee -a /var/snap/microk8s/current/args/containerd-template.toml`)
+            util.executeCommand(false, "sudo microk8s start");
+        }
     }
 
 }

@@ -22,6 +22,14 @@ inputs:
     description: "Fully qualified path where the container image tarballs is located"
     required: false
     default: ""
+  docker-user:
+    description: "Docker.io user for containerd to login to."
+    required: false
+    default: ""
+  docker-password:
+    description: "Docker.io password for containerd to login to."
+    required: false
+    default: ""
 runs:
   using: "node16"
   main: "lib/index.js"

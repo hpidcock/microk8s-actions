@@ -13,6 +13,8 @@ async function run() {
   let channel = core.getInput("channel");
   let launchConfigPath = core.getInput("launch-configuration");
   let sideloadImagePath = core.getInput("sideload-images-path");
+  let dockerUser = core.getInput("docker-user");
+  let dockerPassword = core.getInput("docker-password");
   sh.config.fatal = true;
   sh.config.verbose = true
 
@@ -23,7 +25,9 @@ async function run() {
       addons,
       devMode,
       launchConfigPath,
-      sideloadImagePath);
+      sideloadImagePath,
+      dockerUser,
+      dockerPassword);
 
     microk8s.install();
     microk8s.enableAddons();
